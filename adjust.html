@@ -6,12 +6,12 @@
       var pairs = url.split('?')[1].split('&');
       for (var i = 0; i < pairs.length; i++) {
         var spl = pairs[i].split('=');
-        obj[spl[0]]=spl[1];
+        obj[decodeURIComponent(spl[0])]=decodeURIComponent(spl[1]);
       }
       return obj;
     }
     var myUrl = parseUrl(location.search);
-    var adjustUrl = parseUrl(decodeURIComponent(myUrl['adjust']));
+    var adjustUrl = parseUrl(myUrl['adjust']);
     var deepLink = adjustUrl['deep_link'];
     window.location = deepLink;
     </script>
