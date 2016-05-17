@@ -1,0 +1,38 @@
+<html>
+	<head>
+	<title>adjust deeplinking...</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+	<meta name="viewport" content="width=640, user-scalable=yes" />
+	</head>
+	<body>
+	<script>
+	
+		start = Date.now();
+		function try_close(){
+			location.replace('about:blank');
+		}
+
+		function store_or_close(){
+			now = Date.now();
+			if (now - start > 3000) {
+				try_close();
+			} else {
+				window.location.replace("market://details?id=com.jabong.android&referrer=adjust_reftag%3Dc29eVj9pSZNIm%26utm_source%3DInmobi_New%26utm_campaign%3Dinmobi_ifc");
+				setInterval(function () {
+					try_close();
+				}, 1000);
+			}
+		}
+
+		setInterval(function () {
+			store_or_close();
+		}, 2000);
+	
+	</script>
+	
+		<iframe style="display:none" height=0 width=0 src="Jabong://in/d/GK704KA95GAQINDFAS?utm_source=InMobi&utm_medium=retarget&adjust_reftag=c29eVj9pSZNIm"></iframe>
+		
+	</body>
+	</html>
+	
