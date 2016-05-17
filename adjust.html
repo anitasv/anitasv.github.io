@@ -5,7 +5,8 @@
       var obj = {};
       var pairs = url.split('?')[1].split('&');
       for (var i = 0; i < pairs.length; i++) {
-        obj[pairs[0]]=pairs[1];
+        var spl = pairs.split('=')
+        obj[spl[0]]=spl[1];
       }
       return obj;
     }
