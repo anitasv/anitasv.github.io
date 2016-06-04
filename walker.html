@@ -5,19 +5,46 @@
     <title>Walker Bots Demo</title>
 </head>
 <body>
-<select id="botname">
-    <option value="0">Rand Bot</option>
-    <option value="1">SA Bot</option>
-    <option value="2">Cell Bot</option>
-</select>
-<input id="run" type="button" value="Run">
-<input id="stop" type="button" value="Stop">
+<input id="run" type="button" value="Add Bots">
 <br>
-<div style="border: solid;width:500px;height:500px">
-<canvas id="room" width="500" height="500">
+<div style="display:table">
+<div style="display:table-row">
+<div id="coverage1" style="display:table-cell;border: dotted">
+Coverage:
+</div>
+<div id="coverage2" style="display:table-cell;border: dotted;">
+Coverage:
+</div>
+<div id="coverage3"style="display:table-cell;border: dotted;">
+Coverage:
+</div>
+</div>
+<div style="display:table-row">
+<div style="display:table-cell;border: solid;width:250px;height:250px">
+<canvas id="room1" width="250" height="250">
 </canvas>
 </div>
-<span id="coverage"></span>
+<div style="display:table-cell;border: solid;width:250px;height:250px">
+<canvas id="room2" width="250" height="250">
+</canvas>
+</div>
+<div style="display:table-cell;border: solid;width:250px;height:250px">
+<canvas id="room3" width="250" height="250">
+</canvas>
+</div>
+</div>
+<div style="display:table-row">
+<div style="display:table-cell;border: dashed">
+Rand Bot
+</div>
+<div style="display:table-cell;border: dashed;">
+SA Bot
+</div>
+<div style="display:table-cell;border: dashed;">
+Cell Bot
+</div>
+</div>
+</div>
 <script type="application/javascript">
     /**
      * @constructor
@@ -44,8 +71,8 @@
             var ctx = this.context;
             ctx.beginPath();
             ctx.lineWidth = 5;
-            ctx.moveTo(this.x * 500, this.y * 500);
-            ctx.lineTo(nx * 500, ny * 500);
+            ctx.moveTo(this.x * 250, this.y * 250);
+            ctx.lineTo(nx * 250, ny * 250);
             ctx.stroke();
             this.x = nx;
             this.y = ny;
@@ -70,11 +97,17 @@
     /**
      * @constructor
      */
-    function SABot() {
-
+    function SABot(env) {
+        this.env = env;
+        this.temp = Math.PI / 4;
+        this.steps = 0;
     }
     SABot.prototype.update = function() {
-
+        var b = this.env.move();
+        if (!b) {
+            this.steps++;
+            this.env.rotate((Math.PI + (this.temp * (2*Math.random() - 1)))/(1 + 0.1 * Math.log(this.steps)));
+        }
     };
     /**
      * @constructor
@@ -92,10 +125,8 @@
         function(env) { return new CellBot(env) }
     ];
     var runButton = document.getElementById('run');
-    runButton.addEventListener('click', function() {
-        var select = document.getElementById('botname');
-        var botId = parseInt(select.options[select.selectedIndex].value);
-        var canvas = document.getElementById('room');
+
+    var startSim = function(canvas, botId, cvg) {
         var ctx = canvas.getContext("2d");
         var env = new Env(Math.random() * Math.PI, Math.random(), Math.random(), ctx);
         var bot = bots[botId](env);
@@ -104,7 +135,6 @@
             window.requestAnimationFrame(update);
         };
         update();
-        var cvg = document.getElementById('coverage');
         var stats = function() {
             var id = ctx.getImageData(0, 0, 100, 100);
             var white = 0;
@@ -120,6 +150,18 @@
             window.requestAnimationFrame(stats);
         };
         stats();
+    };
+
+    runButton.addEventListener('click', function() {
+        var canvas1 = document.getElementById('room1');
+        var cvg1 = document.getElementById('coverage1');
+        startSim(canvas1, 0, cvg1);
+        var canvas2 = document.getElementById('room2');
+        var cvg2 = document.getElementById('coverage2');
+        startSim(canvas2, 1, cvg2);
+        var canvas3 = document.getElementById('room3');
+        var cvg3 = document.getElementById('coverage3');
+        startSim(canvas3, 2, cvg3);
     }, false);
 </script>
 </body>
