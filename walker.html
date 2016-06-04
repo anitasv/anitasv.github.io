@@ -13,8 +13,8 @@
 <input id="run" type="button" value="Run">
 <input id="stop" type="button" value="Stop">
 <br>
-<div style="border: solid;width:100px;height:100px">
-<canvas id="room" width="100" height="100">
+<div style="border: solid;width:500px;height:500px">
+<canvas id="room" width="500" height="500">
 </canvas>
 </div>
 <span id="coverage"></span>
@@ -33,7 +33,7 @@
         this.angle = this.angle + angle;
     };
     Env.prototype.move = function () {
-        return this.update(0.05);
+        return this.update(0.1);
     };
     Env.prototype.update = function (delta) {
         var dx = this.speed * Math.cos(this.angle);
@@ -43,9 +43,9 @@
         if (nx >=0 && ny >=0 && nx <= 1 && ny <= 1) {
             var ctx = this.context;
             ctx.beginPath();
-            ctx.lineWidth = 10;
-            ctx.moveTo(this.x * 100, this.y * 100);
-            ctx.lineTo(nx * 100, ny * 100);
+            ctx.lineWidth = 5;
+            ctx.moveTo(this.x * 500, this.y * 500);
+            ctx.lineTo(nx * 500, ny * 500);
             ctx.stroke();
             this.x = nx;
             this.y = ny;
