@@ -41,7 +41,7 @@ Rand Bot
 SA Bot
 </div>
 <div style="display:table-cell;border: dashed;">
-Cell Bot
+Wings Bot
 </div>
 </div>
 </div>
@@ -112,17 +112,23 @@ Cell Bot
     /**
      * @constructor
      */
-    function CellBot() {
-
+    function WingsBot(env) {
+        this.env = env;
+        this.temp = Math.PI / 4;
+        this.steps = 0;
     }
-    CellBot.prototype.update = function() {
-
+    WingsBot.prototype.update = function() {
+        var b = this.env.move();
+        if (!b) {
+            this.steps++;
+            this.env.rotate(Math.PI/(1 + Math.random() * Math.log(this.steps)));
+        }
     };
 
     var bots = [
         function(env) { return new RandBot(env) },
         function(env) { return new SABot(env) },
-        function(env) { return new CellBot(env) }
+        function(env) { return new WingsBot(env) }
     ];
     var runButton = document.getElementById('run');
 
@@ -147,9 +153,8 @@ Cell Bot
                 }
             }
             cvg.innerText = 'Coverage : ' + 100 * white / (black + white);
-            window.requestAnimationFrame(stats);
         };
-        stats();
+        window.setInterval(stats, 100);
     };
 
     runButton.addEventListener('click', function() {
