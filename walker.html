@@ -15,7 +15,10 @@ Coverage:
 <div id="coverage2" style="display:table-cell;border: dotted;">
 Coverage:
 </div>
-<div id="coverage3"style="display:table-cell;border: dotted;">
+<div id="coverage3" style="display:table-cell;border: dotted;">
+Coverage:
+</div>
+<div id="coverage4" style="display:table-cell;border: dotted;">
 Coverage:
 </div>
 </div>
@@ -32,6 +35,10 @@ Coverage:
 <canvas id="room3" width="250" height="250">
 </canvas>
 </div>
+<div style="display:table-cell;border: solid;width:250px;height:250px">
+<canvas id="room4" width="250" height="250">
+</canvas>
+</div>
 </div>
 <div style="display:table-row">
 <div style="display:table-cell;border: dashed">
@@ -42,6 +49,9 @@ SA Bot
 </div>
 <div style="display:table-cell;border: dashed;">
 Wings Bot
+</div>
+<div style="display:table-cell;border: dashed;">
+Spiral Bot
 </div>
 </div>
 </div>
@@ -55,12 +65,14 @@ Wings Bot
         this.y = y;
         this.speed = 1;
         this.context = context;
+        var ctx = this.context;
+        ctx.beginPath();
     }
     Env.prototype.rotate = function(angle) {
         this.angle = this.angle + angle;
     };
     Env.prototype.move = function () {
-        return this.update(0.1);
+        return this.update(0.005);
     };
     Env.prototype.update = function (delta) {
         var dx = this.speed * Math.cos(this.angle);
@@ -69,9 +81,7 @@ Wings Bot
         var ny = this.y + dy * delta;
         if (nx >=0 && ny >=0 && nx <= 1 && ny <= 1) {
             var ctx = this.context;
-            ctx.beginPath();
-            ctx.lineWidth = 5;
-            ctx.moveTo(this.x * 250, this.y * 250);
+            ctx.lineWidth = 10;
             ctx.lineTo(nx * 250, ny * 250);
             ctx.stroke();
             this.x = nx;
@@ -121,14 +131,40 @@ Wings Bot
         var b = this.env.move();
         if (!b) {
             this.steps++;
-            this.env.rotate(Math.PI/(1 + Math.random() * Math.log(this.steps)));
+            this.env.rotate(Math.PI/(1 + Math.random() * 0.5 * Math.log(this.steps)));
+        }
+    };
+
+    /**
+     * @constructor
+     */
+    function SpiralBot(env) {
+        this.env = env;
+        this.temp = Math.PI / 4;
+        this.steps = 0;
+        this.square = 4;
+    }
+    SpiralBot.prototype.update = function() {
+        var b = this.env.move();
+        if (!b) {
+            this.env.rotate(Math.PI / 2);
+            this.square = 4 * Math.floor(Math.random() * 4);
+        } else {
+            this.steps++;
+            if (this.steps % this.square == 0) {
+                console.log(this.square);
+                this.steps = 0;
+                this.square = this.square + 4;
+                this.env.rotate(Math.PI / 2);
+            }
         }
     };
 
     var bots = [
         function(env) { return new RandBot(env) },
         function(env) { return new SABot(env) },
-        function(env) { return new WingsBot(env) }
+        function(env) { return new WingsBot(env) },
+        function(env) { return new SpiralBot(env) }
     ];
     var runButton = document.getElementById('run');
 
@@ -138,9 +174,8 @@ Wings Bot
         var bot = bots[botId](env);
         var update = function() {
             bot.update();
-            window.requestAnimationFrame(update);
         };
-        update();
+        window.setInterval(update, 1);
         var stats = function() {
             var id = ctx.getImageData(0, 0, 100, 100);
             var white = 0;
@@ -167,6 +202,9 @@ Wings Bot
         var canvas3 = document.getElementById('room3');
         var cvg3 = document.getElementById('coverage3');
         startSim(canvas3, 2, cvg3);
+        var canvas4 = document.getElementById('room4');
+        var cvg4 = document.getElementById('coverage4');
+        startSim(canvas4, 3, cvg4);
     }, false);
 </script>
 </body>
