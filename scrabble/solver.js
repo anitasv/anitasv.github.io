@@ -95,7 +95,7 @@ $(function() {
         return output;
     }
 
-    $.ajax('/enable1.txt')
+    $.ajax('enable1.txt')
      .done(function(words) {
          var word_list = words.split('\n');
          var head = makeTrie(word_list);
