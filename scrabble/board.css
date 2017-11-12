@@ -1,0 +1,48 @@
+.board {
+    display: table;
+}
+
+.row {
+    display: table-row;
+}
+
+.square {
+    display: table-cell;
+    height: 32px;
+    width: 32px;
+    padding: 5px;
+    background: linear-gradient(rgb(250, 240, 240),rgb(200, 224, 230));
+    
+    border-radius: 15px;
+    box-shadow: 2px 2px 1px rgb(200, 200, 200);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: x-large;
+    text-align: center;
+    text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    color: white;
+    text-shadow: black;
+    text-transform: uppercase;
+    vertical-align: middle;
+    line-height: 30px; 
+    border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.tw {
+    background: linear-gradient(rgb(247, 175, 99),rgb(180, 127, 73));
+}
+
+.dw {
+    background: linear-gradient(rgb(218, 115, 106),rgb(177, 93, 87));;
+}
+
+.tl {
+    background: linear-gradient(rgb(151, 209, 125),rgb(121, 167, 100));;
+}
+
+.dl {
+    background: linear-gradient(rgb(30, 130, 190),rgb(21, 90, 129));;
+}
+
+.selected {
+    border: 1px solid black;
+}

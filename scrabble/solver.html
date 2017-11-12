@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scrabble Solver</title>
+        <link rel="stylesheet" type="text/css" href="board.css">
+    </head>
+    <body>
+        <div id="mainDiv">
+            <select id="boardType" disabled="disabled">
+                <option value="wwf">Words With Friends</option>
+                <option value="wwf_solo">Words With Friends 11x11</option>
+                <option value="classic">Classic</option>
+            </select>
+            <select id="dictType" disabled="disabled">
+                <option value="enable1">Words With Friends (Enable1)</option>
+                <option value="official">Official List OCTCWL </option>
+                <option value="collins">UK, Collins </option>
+                <option value="sowpods">US + UK, SOWPODS </option>
+            </select>
+            <br/>
+            <input id="hand" type="text" value="abcdefg">
+            <input id="next" type="button" value="NEXT">
+            <input id="accept" type="button" value="ACCEPT">
+        </div>
+        <script type="text/javascript" src="jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="board.js"></script>
+        <script type="text/javascript" src="multiset.js"></script>
+        <script type="text/javascript" src="solver.js"></script>
+        <script type="text/javascript" src="engine.js"></script>
+    </body>
+</html>
