@@ -210,6 +210,7 @@ function generate(game, len, off_i, off_j) {
             var k = 0;
             var l = 0;
             var matcher = '';
+            var originalUsage = '';
             var scorer = '';
 
             var valid = false;
@@ -242,9 +243,11 @@ function generate(game, len, off_i, off_j) {
                 if (game.bounds(i_, j_)) {
                     var tile = game.tiles[i_][j_];
                     var letter = tile.letter;
+                    var usage = tile.usage;
                     if (letter == '') {
                         l++;
                         letter = '.';
+                        usage = '.';
                         scorer += tile.type;
                     } else {
                         if (!valid) {
@@ -254,13 +257,14 @@ function generate(game, len, off_i, off_j) {
                         scorer += 'ff';
                     }
                     matcher += letter;
+                    originalUsage += usage;
                     k++;
                 } else {
                     break;
                 }
             }
             if (valid) {
-                problems.push([matcher, [ min_len, [[i, j], [off_i, off_j]]]]);
+                problems.push([matcher, [ min_len, [[i, j], [off_i, off_j]], originalUsage]]);
             }
         }
     }
@@ -292,15 +296,31 @@ function solve(game, hand) {
         for (var option of options) {
             var min_len = option[0];
             var move_spec = option[1];
+            var originalUsage = option[2];
             for (var cand of candidates) {
                 var word = cand[0]
                 var usage = cand[1]
+                var correctedUsage = '';
+                for (var l in usage) {
+                    var proposedUse = usage[l];
+                    var originalUse = originalUsage[l];
+                    var resolvedUse;
+                    if (originalUse == '.') {
+                        resolvedUse = proposedUse;
+                    } else{
+                        resolvedUse = originalUse;
+                    }
+                    correctedUsage += resolvedUse;
+                }
+
+                var correctedCand = [word, correctedUsage];
+
                 if (word.length < min_len) {
                     continue;
                 }
-                var score = doScore(cand, game, move_spec);
-                if (score > 0) {
-                    scored.push([cand, score, move_spec]);
+                var score = doScore(correctedCand, game, move_spec);
+                if (score >= 0) {
+                    scored.push([correctedCand, score, move_spec]);
                 }
             }
         }

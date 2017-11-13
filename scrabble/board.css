@@ -46,3 +46,11 @@
 .selected {
     border: 1px solid black;
 }
+
+.demo {
+    background: linear-gradient(rgb(255, 255, 0), rgb(200, 200, 0));
+}
+
+.occupied {
+    background: linear-gradient(rgba(255, 174, 0, 0.582), rgba(255, 81, 0, 0.582));
+}

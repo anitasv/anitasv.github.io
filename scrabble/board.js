@@ -54,7 +54,12 @@ $(function() {
         } else {
             display = ch;
         }
-        this.tiles[i][j].cell.text(display);
+        var cell = this.tiles[i][j].cell;
+        cell.text(display);
+        cell.removeClass('demo');
+        if (display != '') {
+            cell.addClass('occupied');
+        }
     };
     Game.prototype.setLetterUsageDemo = function(i, j, ch, use) {
         if (!this.bounds(i, j)) {
@@ -69,7 +74,10 @@ $(function() {
         } else {
             display = ch;
         }
-        this.tiles[i][j].cell.text(display);
+        var cell = this.tiles[i][j].cell;
+        cell.text(display);
+        cell.removeClass('occupied');
+        cell.addClass('demo');
     };
     Game.prototype.setWordUsage = function(pos, dir, word, usage) {
         var len = word.length;
