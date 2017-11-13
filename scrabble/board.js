@@ -19,13 +19,14 @@ $(function() {
         this.cell = null;
     }
 
-    function Game(M, N, CR, CC, point_values) {
+    function Game(M, N, CR, CC, point_values, bonus) {
         this.M = M;
         this.N = N;
         this.CR = CR;
         this.CC = CC;
         this.tiles = newMatrix(Tile, M, N);
         this.point_values = point_values;
+        this.bonus = bonus;
     }
     
     Game.prototype.bounds = function(i, j) {
@@ -167,7 +168,7 @@ $(function() {
     }
 
     function game_wwf() {
-        var g = new Game(15, 15, 7, 7, wwf_point_values);
+        var g = new Game(15, 15, 7, 7, wwf_point_values, 35);
         var sym = function(pos) {
             return eightfold(14, pos);
         };
@@ -186,7 +187,7 @@ $(function() {
     }
      
     function game_wwf_solo() {
-        var g = new Game(11, 11, 5, 5, wwf_point_values);
+        var g = new Game(11, 11, 5, 5, wwf_point_values, 35);
         var sym = function(pos) {
             return eightfold(10, pos);
         };
@@ -205,7 +206,7 @@ $(function() {
     }
 
     function game_classic() {
-        var g = new Game(15, 15, 7, 7, classic_point_values);
+        var g = new Game(15, 15, 7, 7, classic_point_values, 50);
         var sym = function(pos) {
             return eightfold(14, pos);
         };

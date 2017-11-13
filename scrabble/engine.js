@@ -88,7 +88,7 @@ function doScore(cand, game, move_spec) {
         }
     }
     if (tilesUsed == 7) {
-        score += 35; // BONUS!!!
+        score += game.bonus;
     }
     if (tilesUsed == 0) {
         return -1;
