@@ -1,6 +1,6 @@
 
 function comparator(p1, p2) {
-    return p1[1] - p2[1];
+    return - p1[1] + p2[1];
 }
 
 function getScorer(game, pos, dir, len) {
@@ -325,19 +325,19 @@ function solve(game, hand) {
             }
         }
     }
-    var sorted = scored.sort(comparator);
-    if (sorted.length != 0) {
-        var highscore = sorted[sorted.length - 1][1];
-        var ret = [];
-        for (var move of sorted) {
-            if (move[1] == highscore) {
-                ret.push(move);
-            }
-        }
-        return ret;
-    } else {
-        return sorted;
-    }
+    return scored.sort(comparator);
+    // if (sorted.length != 0) {
+    //     var highscore = sorted[0][1];
+    //     var ret = [];
+    //     for (var move of sorted) {
+    //         if (move[1] == highscore) {
+    //             ret.push(move);
+    //         }
+    //     }
+    //     return ret;
+    // } else {
+    //     return sorted;
+    // }
 }
 
 function makeMoveDemo(game, move) {
@@ -379,4 +379,10 @@ $(function() {
             solIndex = 0;
         }
     })
+    $("#cancel").click(function() {
+        game.cancelDemo();
+        last_word = '';
+        solutions = [];
+        solIndex = 0;
+    });
 });

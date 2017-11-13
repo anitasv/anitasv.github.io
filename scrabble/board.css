@@ -11,9 +11,9 @@
     height: 32px;
     width: 32px;
     padding: 5px;
-    background: linear-gradient(rgb(250, 240, 240),rgb(200, 224, 230));
+    background: linear-gradient(rgb(200, 224, 230), rgb(250, 240, 240));
     
-    border-radius: 15px;
+    border-radius: 10px;
     box-shadow: 2px 2px 1px rgb(200, 200, 200);
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: x-large;
@@ -28,19 +28,19 @@
 }
 
 .tw {
-    background: linear-gradient(rgb(247, 175, 99),rgb(180, 127, 73));
+    background: linear-gradient(rgb(180, 127, 73), rgb(247, 175, 99));
 }
 
 .dw {
-    background: linear-gradient(rgb(218, 115, 106),rgb(177, 93, 87));;
+    background: linear-gradient(rgb(177, 93, 87), rgb(218, 115, 106));;
 }
 
 .tl {
-    background: linear-gradient(rgb(151, 209, 125),rgb(121, 167, 100));;
+    background: linear-gradient(rgb(121, 167, 100), rgb(151, 209, 125));;
 }
 
 .dl {
-    background: linear-gradient(rgb(30, 130, 190),rgb(21, 90, 129));;
+    background: linear-gradient(rgb(21, 90, 129), rgb(30, 130, 190));;
 }
 
 .selected {
@@ -53,4 +53,5 @@
 
 .occupied {
     background: linear-gradient(rgba(255, 174, 0, 0.582), rgba(255, 81, 0, 0.582));
+    border-radius: 15px;
 }
