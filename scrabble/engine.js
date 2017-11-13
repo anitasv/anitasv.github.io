@@ -87,7 +87,7 @@ function doScore(cand, game, move_spec) {
             tilesUsed++;
         }
     }
-    if (tilesUsed == 7) {
+    if (tilesUsed >= 7) {
         score += game.bonus;
     }
     if (tilesUsed == 0) {
