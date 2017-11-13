@@ -124,17 +124,25 @@ $(function() {
         }
     }
 
-
-
-
     var wwf_point_values = {
-        's' : 1, 'r' : 1, 't' : 1, 'i' : 1, 'o' : 1, 'a' : 1, 'e' : 1,
+        's': 1, 'r': 1, 't': 1, 'i': 1, 'o': 1, 'a': 1, 'e': 1,
         'l': 2, 'u': 2, 'd': 2, 'n': 2,
         'y': 3, 'g': 3, 'h': 3,
         'b': 4, 'c': 4, 'f': 4, 'm': 4, 'p': 4, 'w':4,
         'k': 5, 'v': 5,
         'x': 8,
         'j': 10, 'q': 10, 'z': 10, 
+        '?': 0
+    };
+
+    var classic_point_values = {
+        'l': 1, 'u': 1, 's': 1, 'i': 1, 'n': 1, 'r': 1, 'o': 1, 't': 1, 'a': 1, 'e': 1,
+        'g': 2, 'd': 2, 
+        'b': 3, 'p': 3, 'c': 3, 'm': 3,
+        'v': 4, 'f': 4, 'w': 4, 'y': 4, 'h': 4,
+        'k': 5,
+        'j': 8, 'x': 8,
+        'q': 10, 'z': 10,
         '?': 0
     };
 
@@ -196,11 +204,30 @@ $(function() {
         return g;
     }
 
+    function game_classic() {
+        var g = new Game(15, 15, 7, 7, classic_point_values);
+        var sym = function(pos) {
+            return eightfold(14, pos);
+        };
+        var tw = apply_symmetry([ [0, 0], [0, 7] ], sym);
+        g.setType(tw, 'tw');
+    
+        var dw = apply_symmetry([ [1, 1], [2, 2], [3, 3], [4, 4], [7, 7]], sym);
+        g.setType(dw, 'dw');
+        
+        var tl = apply_symmetry([ [1, 5], [5, 5] ], sym);
+        g.setType(tl, 'tl');
+        
+        var dl = apply_symmetry([ [0, 3], [2, 6], [3, 7], [6, 6] ], sym);
+        g.setType(dl, 'dl');
+        return g;
+    }
+
     var selectI = -1, selectJ = -1;
     var typeDirection = [ 0, 1];    
     var selectedClass = 'selected-across'
 
-    var changeSelection = function(i_, j_) {
+    var changeSelection = function(game, i_, j_) {
         return function() {
             if (selectI != i_ || selectJ != j_) {
                 if (game.bounds(selectI, selectJ)) {
@@ -237,6 +264,7 @@ $(function() {
 
     function newBoard(game) {
         var $table = $('<div />', {
+            id: 'board',
             class: 'board',
             tabindex: 1
         });
@@ -249,17 +277,22 @@ $(function() {
                     class: 'square'
                 });
                 $row.append($square);
-                $square.click(changeSelection(i, j));
+                $square.click(changeSelection(game, i, j));
                 $square.dblclick(function(i_, j_) {
                     return function() {
                         var tile = game.tiles[i_][j_];
-                        var usage = tile.usage;
-                        if (usage == '?') {
-                            tile.usage = tile.letter;
-                        } else {
-                            tile.usage = '?';
+                        var letter = tile.letter;
+                        if (letter == '') {
+                            return;
                         }
-                        game.setLetterUsage(i_, j_, tile.letter, tile.usage);
+                        var usage = tile.usage;
+                        var newUsage;
+                        if (usage == '?') {
+                            newUsage = letter;
+                        } else {
+                            newUsage = '?';
+                        }
+                        game.setLetterUsage(i_, j_, letter, newUsage);
                     };
                 }(i, j));
                 var tile = game.tiles[i][j];
@@ -268,26 +301,50 @@ $(function() {
             }
             $table.append($row);
         }
+        $table.keypress(function (evt) {
+            var ch = evt.key;
+            if (ch >= 'A' && ch <= 'Z') {
+                ch = ch.toLocaleLowerCase();
+            }
+            if (ch >= 'a' && ch <= 'z') {
+                game.setLetter(selectI, selectJ, ch);
+                changeSelection(game, selectI + typeDirection[0], selectJ + typeDirection[1])();
+    
+                evt.preventDefault();
+            } if (ch == ' ') {
+                game.setLetter(selectI, selectJ, '');
+                evt.preventDefault();
+            }
+        });
         return $table;
     }
     
-    var game = game_wwf();
-    window['game'] = game;
-    var board = newBoard(game);
-    $("#mainDiv").append(board);
-    $(board).keypress(function (evt) {
-        var ch = evt.key;
-        if (ch >= 'A' && ch <= 'Z') {
-            ch = ch.toLocaleLowerCase();
-        }
-        if (ch >= 'a' && ch <= 'z') {
-            game.setLetter(selectI, selectJ, ch);
-            changeSelection(selectI + typeDirection[0], selectJ + typeDirection[1])();
+    var currentBoardType = '';
+    var game;
+    changeBoardType('classic');
 
-            evt.preventDefault();
-        } if (ch == ' ') {
-            game.setLetter(selectI, selectJ, '');
-            evt.preventDefault();
+    function changeBoardType(bt) {
+        if (bt == currentBoardType) {
+            return;
         }
+        currentBoardType = bt;
+        if (bt == 'wwf') {
+            game = game_wwf();
+        } else if (bt == 'wwf_solo') {
+            game = game_wwf_solo();
+        } else if (bt == 'classic') {
+            game = game_classic();
+        } else {
+            console.log("Unsupported board type: " + bt);
+        }
+        $("#board").remove();
+        window['game'] = game;
+        var board = newBoard(game);
+        
+        $("#mainDiv").append(board);
+    };
+
+    $("#boardType").on("change", function(evt) {
+        changeBoardType($("#boardType").val());
     });
 });

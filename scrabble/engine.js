@@ -366,7 +366,10 @@ $(function() {
                 solIndex = 0;
             }
             game.cancelDemo();
-            makeMoveDemo(game, solutions[solIndex]);
+            var move = solutions[solIndex];
+            var score = move[1];
+            $("#score").text(score);
+            makeMoveDemo(game, move);
         }
     })
     $("#accept").click(function() {
@@ -377,6 +380,7 @@ $(function() {
             last_word = '';
             solutions = [];
             solIndex = 0;
+            $("#score").text(0);
         }
     })
     $("#cancel").click(function() {
@@ -384,5 +388,6 @@ $(function() {
         last_word = '';
         solutions = [];
         solIndex = 0;
+        $("#score").text(0);
     });
 });

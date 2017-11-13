@@ -6,12 +6,12 @@
     </head>
     <body>
         <div id="mainDiv">
-            <select id="boardType" disabled="disabled">
+            Board Type: <select id="boardType">
+                <option value="classic">Classic</option>
                 <option value="wwf">Words With Friends</option>
                 <option value="wwf_solo">Words With Friends 11x11</option>
-                <option value="classic">Classic</option>
             </select>
-            <select id="dictType" disabled="disabled">
+            Dictionary: <select id="dictType" disabled="disabled">
                 <option value="enable1">Words With Friends (Enable1)</option>
                 <option value="official">Official List OCTCWL </option>
                 <option value="collins">UK, Collins </option>
@@ -22,6 +22,7 @@
             <input id="next" type="button" value="NEXT">
             <input id="accept" type="button" value="ACCEPT">
             <input id="cancel" type="button" value="CANCEL">
+            Score: <span id="score">0</span>
         </div>
         <script type="text/javascript" src="jquery-3.2.1.min.js"></script>
         <script type="text/javascript" src="board.js"></script>
