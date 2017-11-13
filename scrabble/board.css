@@ -12,7 +12,6 @@
     width: 32px;
     padding: 5px;
     background: linear-gradient(rgb(200, 224, 230), rgb(250, 240, 240));
-    
     border-radius: 10px;
     box-shadow: 2px 2px 1px rgb(200, 200, 200);
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -24,7 +23,7 @@
     text-transform: uppercase;
     vertical-align: middle;
     line-height: 30px; 
-    border: 1px solid rgba(0, 0, 0, 0);
+    border: 2px solid rgba(0, 0, 0, 0);
 }
 
 .tw {
@@ -43,8 +42,11 @@
     background: linear-gradient(rgb(21, 90, 129), rgb(30, 130, 190));;
 }
 
-.selected {
-    border: 1px solid black;
+.selected-across {
+    border-left: 2px solid black;
+}
+.selected-down {
+    border-top: 2px solid black;
 }
 
 .demo {
@@ -53,5 +55,4 @@
 
 .occupied {
     background: linear-gradient(rgba(255, 174, 0, 0.582), rgba(255, 81, 0, 0.582));
-    border-radius: 15px;
 }

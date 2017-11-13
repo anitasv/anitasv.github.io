@@ -50,7 +50,7 @@ $(function() {
         this.tiles[i][j].usage = use;
         var display;
         if (use == '?') {
-            display = '[' + ch + ']';
+            display = '.' + ch + '.';
         } else {
             display = ch;
         }
@@ -198,28 +198,37 @@ $(function() {
 
     var selectI = -1, selectJ = -1;
     var typeDirection = [ 0, 1];    
+    var selectedClass = 'selected-across'
+
     var changeSelection = function(i_, j_) {
         return function() {
             if (selectI != i_ || selectJ != j_) {
                 if (game.bounds(selectI, selectJ)) {
-                    game.tiles[selectI][selectJ].cell.removeClass('selected');
+                    var cell = game.tiles[selectI][selectJ].cell
+                    cell.removeClass('selected-across');
+                    cell.removeClass('selected-down');
                 }
                 selectI = i_;
                 selectJ = j_;
-                game.tiles[i_][j_].cell.addClass('selected');
+                if (typeDirection[0] == 0) {
+                    game.tiles[i_][j_].cell.addClass('selected-across');
+                } else {
+                    game.tiles[i_][j_].cell.addClass('selected-down');
+                }
             } else {
                 if (game.bounds(selectI, selectJ)) {
                     var tile = game.tiles[selectI][selectJ];
+                    var cell = tile.cell;
                     var letter = tile.letter;
                     var usage = tile.usage;
-                    if (letter != '') {
-                        if (tile.usage != '?') {
-                            game.setLetterUsage(selectI, selectJ, letter, '?');
-                        } else {
-                            game.setLetterUsage(selectI, selectJ, letter, letter);
-                        }
+                    typeDirection = [ typeDirection[1], typeDirection[0]]
+
+                    if (typeDirection[0] == 0) {
+                        cell.removeClass('selected-down');
+                        cell.addClass('selected-across');
                     } else {
-                        typeDirection = [ typeDirection[1], typeDirection[0]]
+                        cell.removeClass('selected-across');
+                        cell.addClass('selected-down');
                     }
                 }
             }
@@ -241,6 +250,18 @@ $(function() {
                 });
                 $row.append($square);
                 $square.click(changeSelection(i, j));
+                $square.dblclick(function(i_, j_) {
+                    return function() {
+                        var tile = game.tiles[i_][j_];
+                        var usage = tile.usage;
+                        if (usage == '?') {
+                            tile.usage = tile.letter;
+                        } else {
+                            tile.usage = '?';
+                        }
+                        game.setLetterUsage(i_, j_, tile.letter, tile.usage);
+                    };
+                }(i, j));
                 var tile = game.tiles[i][j];
                 tile.cell = $square;
                 $square.addClass(tile.type);
