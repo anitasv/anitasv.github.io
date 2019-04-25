@@ -59,7 +59,7 @@ function test(candidate) {
     while (z.abs2() < 4) {
         z = z.multiply(z).add(candidate);
         counter++;
-        if (counter > 5000) {
+        if (counter > 10500) {
             return counter;
         }
     }
@@ -72,8 +72,8 @@ function main(md, ctx, level) {
 
     ctx.strokeRect(0, 0, md.width, md.height);
 
-    const canvasWidth = 800;
-    const canvasHeight = 800;
+    const canvasWidth = md.width;
+    const canvasHeight = md.height;
 
     const superSample = 2;
 
@@ -81,8 +81,6 @@ function main(md, ctx, level) {
     const scanHeight = superSample * canvasHeight;
     var highres = new Array(scanWidth * scanHeight);
 
-    const centerX = -0.743643887037158704752191506114774;
-    const centerY = 0.131825904205311970493132056385139;
     const zoom = scanWidth * level;
 
     for (let i = 0; i <= scanWidth; i++) {
@@ -158,11 +156,31 @@ function main(md, ctx, level) {
 const md = document.getElementById('mandel');
 const ctx = md.getContext("2d");
 let level = 50;
+let centerX = -0.743643887037158704752191506114774;
+let centerY = 0.131825904205311970493132056385139;
+let automatic = true;
+
 function draw() {
+
     main(md, ctx, level);
-    level = level * 1.25;
     console.log(level);
-    // requestAnimationFrame(draw);
+    level = level * 1.5;
+    if (automatic) {
+        requestAnimationFrame(draw);
+    }
 }
 
-draw();
+md.addEventListener('mousedown', function(evt) {
+    automatic = false;
+
+    const zoom = md.width * level;
+    const x = (evt.pageX - md.height/2)/zoom + centerX;
+    const y = (evt.pageY - md.width/2)/zoom + centerY;
+
+    centerX = x;
+    centerY = y;
+
+    requestAnimationFrame(draw);
+});
+
+requestAnimationFrame(draw);
