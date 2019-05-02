@@ -21,6 +21,29 @@
             background: #bbada0;
             border-radius: 6px;
         }
+        .score-elem {
+            height: 50px;
+            margin-right: 15px;
+            float: left;
+            text-align: center;
+            font-size: 50px;
+            border-radius: 3px;
+            background: rgba(238, 228, 218, 0.35);        
+        }
+        .eval-elem {
+            height: 50px;
+            margin-right: 15px;
+            float: left;
+            text-align: center;
+            font-size: 30px;
+            border-radius: 3px;
+            background: rgba(238, 228, 218, 0.35);        
+        }
+        .eval-button {
+            width: 100px;
+            text-align: left;
+        }
+
         .grid-row {
             margin-bottom: 15px;
         }       
@@ -136,29 +159,32 @@
         <div id="2048_div">
         </div>
         <br/>
-        <input type="button" value="Auto Play" id="auto">
+        <input type="button" value="Think" id="auto">
         <script type="text/javascript" src="2048_game.js">
         </script>
         <script type="text/javascript" src="2048_ui.js">
         </script>
-        <script type="text/javascript" src="2048_solver.js">
-        </script>
+        <!-- <script type="text/javascript" src="2048_solver.js">
+        </script> -->
         <script type="text/javascript">
             var pos = game.random();
             var div = document.getElementById('2048_div');
             var interface = ui.init(div, pos);
             var button = document.getElementById('auto');
             button.addEventListener('click', evt => {
+                var myWorker = new Worker('2048_solver.js');
+
                 var solve = () => {
-                    m = solver.findBest(interface.position);
-                    if (m != null) {
-                        interface.makeMove(m);
-                        setTimeout(solve, 100);
-                    } else {
-                        console.log("Stopping autoplay, game ended!")
+                    myWorker.postMessage(JSON.stringify(interface.position));
+
+                    myWorker.onmessage = function(e) {
+                        var results = JSON.parse(e.data);
+                        var debug = results.debug;
+                        interface.updateEval(debug);
+                        setTimeout(solve, 10);
                     }
                 }
-                setTimeout(solve, 100);
+                setTimeout(solve, 10);
             });
         </script>
     </body>

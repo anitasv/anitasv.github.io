@@ -1,3 +1,5 @@
+importScripts('2048_game.js');
+
 var solver = {};
 
 var compact = function(pos) {
@@ -106,8 +108,16 @@ var qlearn = function(pos) {
         return pos.score;
     }
 
-    var mi = randInt(0, moves.length);
-    let move = moves[mi];
+    let move;
+
+    // if (randInt(0, 10) < 9) {
+    //     move = bestMove(pos).move;
+    // } 
+    
+    if (!move) {
+        var mi = randInt(0, moves.length);
+        move = moves[mi];
+    }
     
     let p2 = pos.makeMove(move);
 
@@ -147,14 +157,11 @@ var qlearn = function(pos) {
 }
 
 var bestMove = function(pos) {
-
-    for (var i = 0; i < 1000; i++) {
-        qlearn(pos);
-    }
     let moves = pos.moves();
 
     let bestValue = -1;
     let bestMove = null;
+    let debug = [];
 
     for (let mi = 0; mi < moves.length; mi++) {
         let move = moves[mi];
@@ -165,12 +172,15 @@ var bestMove = function(pos) {
                 bestValue = value;
                 bestMove = move;
             }
+            debug[compactMove(move)] = value;
+            debug.push({ move, value });
         }
     }
 
     return {
         score: bestValue,
-        move: bestMove
+        move: bestMove,
+        debug
     }
 }
 
@@ -220,7 +230,7 @@ var rawScore = function(pos, depth, isDebug) {
 
     let bestScore = -1;
     let bestMove = null;
-    let debug = {};
+    let debug = [];
 
     for (let mi = 0; mi < moves.length; mi++) {
         let move = moves[mi];
@@ -269,7 +279,10 @@ var rawScore = function(pos, depth, isDebug) {
             bestMove = move;
         }
         if (isDebug) {
-            debug[move] = totalScore;
+            debug.push({
+                move: move,
+                value: value
+            })
         }
     }
 
@@ -282,9 +295,16 @@ var rawScore = function(pos, depth, isDebug) {
 };
 
 solver.findBest = function(pos) {
-    var m = null;
-    var s = bestMove(pos);
-    m = s.move;
-    console.log("score=", s.score, "move=", m);
-    return m;
+    for (var i = 0; i < 100; i++) {
+        qlearn(pos);
+    }
+
+    return bestMove(pos);
+}
+
+onmessage = function(e) {
+    var posObj = JSON.parse(e.data);
+    var pos = new Position(posObj.arr, posObj.score);
+    console.log(pos);
+    postMessage(JSON.stringify(solver.findBest(pos)));
 }

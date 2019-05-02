@@ -1,9 +1,14 @@
 var ui = {};
 
-var tag = function(parent, type, clzz) {
+var tag = function(parent, type, clzz, attrs) {
     var elem = document.createElement(type);
     elem.className = clzz;
     parent.appendChild(elem);
+    if (attrs) {
+        for (var key in attrs) {
+            elem.setAttribute(key, attrs[key]);
+        }
+    }
     return elem;
 };
 
@@ -20,10 +25,12 @@ var text = function(parent, txt) {
 /**
  * @constructor
  */
-function Interface(pos, cm, se) {
+function Interface(pos, cm, se, ee) {
     this.position = pos;
     this.cellMapping = cm;
     this.scoreElem = se;
+    this.evalElem = ee;
+    this.evalMapping = null;
 }
 
 Interface.prototype.update = function(r, c) {
@@ -43,7 +50,66 @@ Interface.prototype.update = function(r, c) {
 }
 Interface.prototype.updateScore = function() {
     this.scoreElem.innerHTML = '';
-    text(this.scoreElem, '' + this.position.score);
+    text(this.scoreElem, 'Score: ' + this.position.score);
+}
+
+function moveName(move) {
+    var moveNames = [
+        [game.left, 'left'],
+        [game.right, 'right'],
+        [game.up, 'up'],
+        [game.down, 'down']
+    ];
+    for (var i = 0; i < moveNames.length; i++) {
+        var mapping = moveNames[i];
+        if (mapping[0][0] == move[0] && mapping[0][1] == move[1]) {
+            return mapping[1];
+        }
+    }
+    return 'unknown';
+}
+
+Interface.prototype.updateEval = function(strategy) {
+    if (!this.evalMapping) {
+        this.evalMapping = {};
+        var table = divTag(this.evalElem, 'eval-table');
+    
+        for (var i = 0; i < game.allMoves.length; i++) {
+            var move = game.allMoves[i];
+            var evalRow = divTag(table, 'eval-move');
+    
+    
+            var moveButton = tag(evalRow, 'input', 'eval-button', { value: moveName(move), type: 'button'})
+            moveButton.addEventListener('click', (function(m) {
+                return evt => {
+                    interface.makeMove(m);
+                }
+            })(move));
+            var scoreDiv = tag(evalRow, 'div', 'eval-score');
+            this.evalMapping[moveName(move)] = scoreDiv;
+        }
+    }
+
+    var stratMap = {};
+    for (var i = 0; i < strategy.length; i++) {
+        var strat = strategy[i];
+        var move = strat.move;
+        var value = strat.value;
+        stratMap[moveName(move)] = value;
+    }
+
+    for (var i = 0; i < game.allMoves.length; i++) {
+        var move = game.allMoves[i];
+        var moveN = moveName(move);
+        var value = stratMap[moveN];
+        var scoreDiv = this.evalMapping[moveN];
+        scoreDiv.innerHTML = '';
+        if (value) {
+            text(scoreDiv, '' + value);
+        } else {
+            text(scoreDiv, 'invalid');
+        }
+    }
 }
 Interface.prototype.refresh = function() {
     for (var r = 0; r < 4; r++) {
@@ -76,9 +142,12 @@ Interface.prototype.makeMove = function(move) {
 ui.init = function(parent, pos) {   
     var cellMapping = {};
     var scoreElem = divTag(parent, 'score-elem');
-    var interface = new Interface(pos, cellMapping, scoreElem);
-
+    tag(parent, 'br', '');
     var table = divTag(parent, 'grid-container');
+    var evalElem = divTag(parent, 'eval-elem');
+
+    var interface = new Interface(pos, cellMapping, scoreElem, evalElem);
+
     for (let row = 0; row < 4; row++) {
         var trow = divTag(table, 'grid-row');
         var rowMapping = {};

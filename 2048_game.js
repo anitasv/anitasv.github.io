@@ -5,6 +5,8 @@ game.right = [0, 1];
 game.down = [1, 0];
 game.up = [-1, 0];
 
+game.allMoves = [game.left, game.right, game.down, game.up];
+
 game.bounds = function(row, col) {
     return row >= 0 && row < 4 && col >=0 && col < 4;
 }
