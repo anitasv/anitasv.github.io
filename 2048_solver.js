@@ -15,7 +15,7 @@ var compact = function(pos) {
 
 var transposition = {};
 var qTable = {};
-var alpha = 0.9;
+var alpha = 0.1;
 
 var logTable = {
     0:0,
@@ -57,20 +57,7 @@ var powTable = {
 }
 
 var eval = function(pos) {
-    // TODO: implement better eval function.
-    var base = pos.score;
-
-    var bonus = 0;
-    for (var r = 0; r < 4; r++) {
-        for (var c = 0; c < 4; c++) {
-            var v = pos.at(r, c);
-            if (v > 0) {
-                bonus += logTable[v];
-            }
-        }
-    }
-    var scoreBonus = powTable[Math.floor(bonus/16)];
-    return base + scoreBonus;
+    return qlearn(pos, 0);
 }
 
 var hits = 0;
@@ -101,24 +88,7 @@ var getChoices = function(pos) {
     return choices;
 }
 
-var qlearn = function(pos) {
-    let moves = pos.moves();
-
-    if (moves.length == 0) {
-        return pos.score;
-    }
-
-    let move;
-
-    // if (randInt(0, 10) < 9) {
-    //     move = bestMove(pos).move;
-    // } 
-    
-    if (!move) {
-        var mi = randInt(0, moves.length);
-        move = moves[mi];
-    }
-    
+var qLearnMove = function(pos, move, depth) {
     let p2 = pos.makeMove(move);
 
     let choices = getChoices(p2);
@@ -130,7 +100,7 @@ var qlearn = function(pos) {
         p2.set(randomChoice[0], randomChoice[1], 4);
     }
 
-    var learnedValue = qlearn(p2);
+    var learnedValue = qlearn(p2, depth - 1);
     
     var key = compact(pos) + compactMove(move);
     var currentValue = qTable[key];
@@ -140,6 +110,26 @@ var qlearn = function(pos) {
         currentValue = currentValue * (1 - alpha) + alpha * learnedValue;
     }
     qTable[key] = currentValue;
+}
+
+var qlearn = function(pos, depth) {
+    let moves = pos.moves();
+
+    if (moves.length == 0) {
+        return pos.score;
+    }
+
+    if (depth < 0) {
+        let mi = randInt(0, moves.length);
+        let move = moves[mi];
+        qLearnMove(pos, move, depth);
+    } else {
+        for (let mi = 0; mi < moves.length; mi++) {
+            let move = moves[mi];
+            qLearnMove(pos, move, depth);
+        }
+    }
+    
 
     var qMax = -1;
     for (var mj = 0; mj < moves.length; mj++) {
@@ -196,7 +186,8 @@ var score = function(pos, depth, isDebug) {
             ++hits;
             return {
                 score: entry.score + pos.score,
-                move: entry.move
+                move: entry.move,
+                debug: entry.debug
             };
         }
     }
@@ -205,6 +196,7 @@ var score = function(pos, depth, isDebug) {
     transposition[c] = {
         score: (sc.score - pos.score),
         move: sc.move,
+        debug: sc.debug,
         depth: depth
     }
     return sc;
@@ -215,7 +207,8 @@ var rawScore = function(pos, depth, isDebug) {
     if (depth == 0) {
         return {
             score: eval(pos),
-            move: null
+            move: null,
+            debug: []
         }
     }
 
@@ -224,7 +217,8 @@ var rawScore = function(pos, depth, isDebug) {
     if (moves.length == 0) {
         return {
             score: pos.score,
-            move: null
+            move: null,
+            debug: []
         }
     }
 
@@ -281,7 +275,7 @@ var rawScore = function(pos, depth, isDebug) {
         if (isDebug) {
             debug.push({
                 move: move,
-                value: value
+                value: totalScore
             })
         }
     }
@@ -295,16 +289,26 @@ var rawScore = function(pos, depth, isDebug) {
 };
 
 solver.findBest = function(pos) {
-    for (var i = 0; i < 100; i++) {
-        qlearn(pos);
-    }
+    qlearn(pos, 3);
 
     return bestMove(pos);
+
+    // var s = score(pos, 2, true);
+    // return s;
+
 }
 
 onmessage = function(e) {
-    var posObj = JSON.parse(e.data);
+    var messageObj = JSON.parse(e.data);
+    var posObj = messageObj.position;
+    var generation = messageObj.generation;
     var pos = new Position(posObj.arr, posObj.score);
-    console.log(pos);
-    postMessage(JSON.stringify(solver.findBest(pos)));
+    // console.log(pos);
+    var reply = JSON.stringify({
+        response: solver.findBest(pos),
+        generation: generation
+    });
+    // console.log(reply);
+    postMessage(reply);
+
 }

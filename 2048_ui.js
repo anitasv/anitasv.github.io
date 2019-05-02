@@ -31,6 +31,7 @@ function Interface(pos, cm, se, ee) {
     this.scoreElem = se;
     this.evalElem = ee;
     this.evalMapping = null;
+    this.generation = 0;
 }
 
 Interface.prototype.update = function(r, c) {
@@ -101,13 +102,13 @@ Interface.prototype.updateEval = function(strategy) {
     for (var i = 0; i < game.allMoves.length; i++) {
         var move = game.allMoves[i];
         var moveN = moveName(move);
-        var value = stratMap[moveN];
+        var value = Math.floor(stratMap[moveN]);
         var scoreDiv = this.evalMapping[moveN];
         scoreDiv.innerHTML = '';
         if (value) {
             text(scoreDiv, '' + value);
         } else {
-            text(scoreDiv, 'invalid');
+            text(scoreDiv, '...');
         }
     }
 }
@@ -121,6 +122,7 @@ Interface.prototype.refresh = function() {
 }
 Interface.prototype.makeMove = function(move) {
     var p1 = this.position.makeMove(move)
+    this.generation = this.generation + 1;
     if (p1 == null) {
         return;
     }

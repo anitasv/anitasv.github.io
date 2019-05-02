@@ -159,33 +159,63 @@
         <div id="2048_div">
         </div>
         <br/>
-        <input type="button" value="Think" id="auto">
+        <div class="wrapper">
+            <div id="progressbar">
+                <div id="progress"></div>
+            </div>
+        </div>
+        <input type="button" value="Think" id="think">
+        <input type="button" value="Play Best So Far" id="play">
         <script type="text/javascript" src="2048_game.js">
         </script>
         <script type="text/javascript" src="2048_ui.js">
         </script>
-        <!-- <script type="text/javascript" src="2048_solver.js">
-        </script> -->
         <script type="text/javascript">
             var pos = game.random();
             var div = document.getElementById('2048_div');
             var interface = ui.init(div, pos);
-            var button = document.getElementById('auto');
-            button.addEventListener('click', evt => {
+            var thinkButton = document.getElementById('think');
+            var playButton = document.getElementById('play');
+            
+            var bestMove = null;
+            var correspondingGeneration = null;
+
+
+            thinkButton.addEventListener('click', evt => {
                 var myWorker = new Worker('2048_solver.js');
 
                 var solve = () => {
-                    myWorker.postMessage(JSON.stringify(interface.position));
+                    // TODO build message-id.
+                    myWorker.postMessage(JSON.stringify({
+                        position: interface.position,
+                        generation: interface.generation
+                    }));
 
                     myWorker.onmessage = function(e) {
                         var results = JSON.parse(e.data);
-                        var debug = results.debug;
-                        interface.updateEval(debug);
+                        var response = results.response;
+                        var generation = results.generation;
+
+                        if (interface.generation == generation) {
+                            var debug = response.debug;
+                            interface.updateEval(debug);
+                            bestMove = response.move;
+                            correspondingGeneration = generation;
+                        }
                         setTimeout(solve, 10);
                     }
                 }
                 setTimeout(solve, 10);
+                thinkButton.setAttribute('disabled', 'disabled');
             });
+
+            playButton.addEventListener('click', evt => {
+                if (bestMove && correspondingGeneration == interface.generation) {
+                    interface.makeMove(bestMove);
+                    interface.updateEval([]);
+                    bestMove = null;
+                }
+            })
         </script>
     </body>
 </html>
