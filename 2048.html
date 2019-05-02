@@ -181,6 +181,7 @@
             var autoPlay = false;
             
             var bestMove = null;
+            var bestScore = null;
             var correspondingGeneration = null;
 
             var playBest = () => {
@@ -188,13 +189,20 @@
                     interface.makeMove(bestMove);
                     interface.updateEval([]);
                     bestMove = null;
+                    bestScore= null;
+                    return true;
+                } else {
+                    return false;
                 }
             };
 
             var playAuto = function() {
                 if (autoPlay) {
-                    playBest();
-                    setTimeout(playAuto, 1000);
+                    if (playBest()) {
+                        setTimeout(playAuto, 1000);
+                    } else {
+                        setTimeout(playAuto, 100);
+                    }
                 }
             };
 
@@ -203,6 +211,7 @@
                 if (autoPlay) {
                     autoButton.setAttribute('value', 'Disable Auto');
                     playButton.setAttribute('disabled', 'disabled');
+
                     setTimeout(playAuto, 100);
                 } else {
                     autoButton.setAttribute('value', 'Enable Auto');
@@ -229,6 +238,7 @@
                             var debug = response.debug;
                             interface.updateEval(debug);
                             bestMove = response.move;
+                            bestScore = response.score;
                             correspondingGeneration = generation;
                         }
                         setTimeout(solve, 10);

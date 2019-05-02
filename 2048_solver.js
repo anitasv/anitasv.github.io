@@ -13,9 +13,8 @@ var compact = function(pos) {
     return state;
 }
 
-var transposition = {};
 var qTable = {};
-var alpha = 0.2;
+var alpha = 1.0;
 
 var logTable = {
     0:0,
@@ -35,29 +34,6 @@ var logTable = {
     16384:14,
     32576:15,
     65536:16
-}
-var powTable = {
-    0:1,
-    1:2,
-    2:4,
-    3:8,
-    4:16,
-    5:32,
-    6:64,
-    7:128,
-    8:256,
-    9:512,
-    10:1024,
-    11:2048,
-    12:4096,
-    13:8192,
-    14:16384,
-    15:32576,
-    16:65536
-}
-
-var eval = function(pos) {
-    return qlearn(pos, 0);
 }
 
 var hits = 0;
@@ -94,12 +70,15 @@ var qLearnMove = function(pos, move, depth) {
     let choices = getChoices(p2);
     var pick = randInt(0, choices.length);
     var randomChoice = choices[pick];
+    var beta = alpha / (choices.length);
+
     if (randInt(0, 10) < 9) {
+        beta = beta * .9;
         p2.set(randomChoice[0], randomChoice[1], 2);
     } else {
+        beta = beta * .1;
         p2.set(randomChoice[0], randomChoice[1], 4);
     }
-
     var learnedValue = qlearn(p2, depth - 1);
     
     var key = compact(pos) + compactMove(move);
@@ -107,9 +86,25 @@ var qLearnMove = function(pos, move, depth) {
     if (!currentValue) {
         currentValue = learnedValue;
     } else {
-        currentValue = currentValue * (1 - alpha) + alpha * learnedValue;
+        currentValue = currentValue * (1 - beta) + beta * learnedValue;
     }
     qTable[key] = currentValue;
+}
+
+var qState = function(pos, moves) {
+    var qMax = -1;
+
+    for (var mj = 0; mj < moves.length; mj++) {
+        var candidateMove = moves[mj];
+        var key = compact(pos) + compactMove(candidateMove);
+        var candidate = qTable[key];
+        if (candidate) {
+            if (candidate > qMax) {
+                qMax = candidate;
+            }
+        }
+    }
+    return qMax == -1 ? null : qMax;
 }
 
 var qlearn = function(pos, depth) {
@@ -121,8 +116,8 @@ var qlearn = function(pos, depth) {
 
     if (depth < 0) {
         let move = null;
-        if (randInt(0, 10) < 8) {
-            var s = bestMove(pos);
+        if (randInt(0, 10) < 0) {
+            var s = solver.bestMoveTerminal(pos)
             if (s) {
                 if (s.move) {
                     move = s.move;
@@ -141,20 +136,7 @@ var qlearn = function(pos, depth) {
         }
     }
     
-
-    var qMax = -1;
-    for (var mj = 0; mj < moves.length; mj++) {
-        var candidateMove = moves[mj];
-        var key = compact(pos) + compactMove(candidateMove);
-        var candidate = qTable[key];
-        if (candidate) {
-            if (candidate > qMax) {
-                qMax = candidate;
-            }
-        }
-    }
-
-    return qMax;
+    return qState(pos, moves);
 }
 
 var bestMove = function(pos) {
@@ -186,134 +168,27 @@ var bestMove = function(pos) {
 }
 
 
-var score = function(pos, depth, isDebug) {
-    if (depth == 0) {
-        return rawScore(pos, depth);
-    }
-    var c = compact(pos) + (isDebug ? 'd' : 'n');
-    var entry = transposition[c];
-    if (entry != null) {
-        if (entry.depth >= depth) {
-            ++hits;
-            return {
-                score: entry.score + pos.score,
-                move: entry.move,
-                debug: entry.debug
-            };
-        }
-    }
-    ++miss;
-    var sc = rawScore(pos, depth, isDebug);
-    transposition[c] = {
-        score: (sc.score - pos.score),
-        move: sc.move,
-        debug: sc.debug,
-        depth: depth
-    }
-    return sc;
-}
-
-var rawScore = function(pos, depth, isDebug) {
-
-    if (depth == 0) {
-        return {
-            score: eval(pos),
-            move: null,
-            debug: []
-        }
-    }
-
-    let moves = pos.moves();
-
-    if (moves.length == 0) {
-        return {
-            score: pos.score,
-            move: null,
-            debug: []
-        }
-    }
-
-    let bestScore = -1;
-    let bestMove = null;
-    let debug = [];
-
-    for (let mi = 0; mi < moves.length; mi++) {
-        let move = moves[mi];
-        
-        let p2 = pos.makeMove(move);
-
-        let choices = [];
-        for (let r = 0; r < 4; r++) {
-            for (let c = 0; c < 4; c++) {
-                if (p2.at(r, c) == 0) {
-                    choices.push([r, c]);
-                }
-            }
-        }
-        let totalScore = 0;
-
-        let smallChoices = [];
-        if (choices.length > 2) {
-            while (smallChoices.length < 2) {
-                var pick = randInt(0, choices.length);
-                smallChoices.push(choices[pick]);
-            }
-        } else {
-            smallChoices = choices;
-        }
-        
-        for (let c = 0; c < smallChoices.length; c++) {
-            let choice = smallChoices[c];
-            p2.set(choice[0], choice[1], 2);
-            let s2 = score(p2, depth - 1).score;
-            p2.set(choice[0], choice[1], 4);
-            let s4 = score(p2, depth - 1).score;
-            p2.set(choice[0], choice[1], 0);
-            totalScore += .9 * s2 + .1 * s4;
-        }
-
-
-        if (choices.length == 0) {
-            totalScore = eval(p2);
-        } else {
-            totalScore = totalScore / smallChoices.length;
-        }
-        
-        if (totalScore > bestScore) {
-            bestScore = totalScore;
-            bestMove = move;
-        }
-        if (isDebug) {
-            debug.push({
-                move: move,
-                value: totalScore
-            })
-        }
-    }
-
-    return {
-        score: bestScore,
-        move: bestMove,
-        debug: debug
-    }
-
-};
-
 solver.findBest = function(pos) {
-    qlearn(pos, 2);
+    for (var i = 0; i < 100; i++) {
+        qlearn(pos, -1);
+    }
 
     return bestMove(pos);
-
-    // var s = score(pos, 2, true);
-    // return s;
-
 }
+
+var oldGeneration = -1;
 
 onmessage = function(e) {
     try {
         var messageObj = JSON.parse(e.data);
         var posObj = messageObj.position;
         var generation = messageObj.generation;
+        if (generation != oldGeneration) {
+            oldGeneration = generation;
+            qTable = {};
+            transposition= {};
+            console.log(generation + ". QTable reset to handle out of memory issues")
+        }
         var pos = new Position(posObj.arr, posObj.score);
         // console.log(pos);
         var reply = JSON.stringify({
