@@ -165,7 +165,8 @@
             </div>
         </div>
         <input type="button" value="Think" id="think">
-        <input type="button" value="Play Best So Far" id="play">
+        <input type="button" value="Play Best" id="play">
+        <input type="button" value="Auto Play" id="auto">
         <script type="text/javascript" src="2048_game.js">
         </script>
         <script type="text/javascript" src="2048_ui.js">
@@ -176,10 +177,38 @@
             var interface = ui.init(div, pos);
             var thinkButton = document.getElementById('think');
             var playButton = document.getElementById('play');
+            var autoButton = document.getElementById('auto');
+            var autoPlay = false;
             
             var bestMove = null;
             var correspondingGeneration = null;
 
+            var playBest = () => {
+                if (bestMove && correspondingGeneration == interface.generation) {
+                    interface.makeMove(bestMove);
+                    interface.updateEval([]);
+                    bestMove = null;
+                }
+            };
+
+            var playAuto = function() {
+                if (autoPlay) {
+                    playBest();
+                    setTimeout(playAuto, 1000);
+                }
+            };
+
+            autoButton.addEventListener('click', evt => {
+                autoPlay = !autoPlay;
+                if (autoPlay) {
+                    autoButton.setAttribute('value', 'Disable Auto');
+                    playButton.setAttribute('disabled', 'disabled');
+                    setTimeout(playAuto, 100);
+                } else {
+                    autoButton.setAttribute('value', 'Enable Auto');
+                    playButton.removeAttribute('disabled');
+                }
+            });
 
             thinkButton.addEventListener('click', evt => {
                 var myWorker = new Worker('2048_solver.js');
@@ -210,11 +239,7 @@
             });
 
             playButton.addEventListener('click', evt => {
-                if (bestMove && correspondingGeneration == interface.generation) {
-                    interface.makeMove(bestMove);
-                    interface.updateEval([]);
-                    bestMove = null;
-                }
+                playBest();
             })
         </script>
     </body>

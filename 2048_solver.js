@@ -15,7 +15,7 @@ var compact = function(pos) {
 
 var transposition = {};
 var qTable = {};
-var alpha = 0.1;
+var alpha = 0.2;
 
 var logTable = {
     0:0,
@@ -120,8 +120,19 @@ var qlearn = function(pos, depth) {
     }
 
     if (depth < 0) {
-        let mi = randInt(0, moves.length);
-        let move = moves[mi];
+        let move = null;
+        if (randInt(0, 10) < 8) {
+            var s = bestMove(pos);
+            if (s) {
+                if (s.move) {
+                    move = s.move;
+                }
+            }
+        }
+        if (!move) {
+            let mi = randInt(0, moves.length);
+            move = moves[mi];
+        }
         qLearnMove(pos, move, depth);
     } else {
         for (let mi = 0; mi < moves.length; mi++) {
@@ -289,7 +300,7 @@ var rawScore = function(pos, depth, isDebug) {
 };
 
 solver.findBest = function(pos) {
-    qlearn(pos, 3);
+    qlearn(pos, 2);
 
     return bestMove(pos);
 
@@ -299,16 +310,19 @@ solver.findBest = function(pos) {
 }
 
 onmessage = function(e) {
-    var messageObj = JSON.parse(e.data);
-    var posObj = messageObj.position;
-    var generation = messageObj.generation;
-    var pos = new Position(posObj.arr, posObj.score);
-    // console.log(pos);
-    var reply = JSON.stringify({
-        response: solver.findBest(pos),
-        generation: generation
-    });
-    // console.log(reply);
-    postMessage(reply);
+    try {
+        var messageObj = JSON.parse(e.data);
+        var posObj = messageObj.position;
+        var generation = messageObj.generation;
+        var pos = new Position(posObj.arr, posObj.score);
+        // console.log(pos);
+        var reply = JSON.stringify({
+            response: solver.findBest(pos),
+            generation: generation
+        });
+        postMessage(reply);
+    } catch(e) {
+        console.warn(e);
+    }
 
 }
