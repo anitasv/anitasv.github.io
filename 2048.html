@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>2048 Tutor</title>
+        <style>
+        body {
+            color: #776e65;
+            font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+            font-size: 18px;
+
+        }
+        .grid-container {
+            display: table;
+            background: #bbada0;
+            margin-top: 40px;
+            position: relative;
+            padding: 15px;
+            cursor: default;
+            touch-action: none;
+            background: #bbada0;
+            border-radius: 6px;
+        }
+        .grid-row {
+            margin-bottom: 15px;
+        }       
+        .grid-row::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+        .grid-row:last-child {
+            margin-bottom: 0;
+        }
+        .grid-cell {
+            width: 106.25px;
+            height: 106.25px;
+            margin-right: 15px;
+            float: left;
+            text-align: center;
+            border-radius: 3px;
+            background: rgba(238, 228, 218, 0.35);        
+        }
+        
+        .tile-2 {
+            border-radius: 3px;
+            font-size: 55px;
+            background: #eee4da;
+        }
+        .tile-4 {
+            border-radius: 3px;
+            font-size: 55px;
+            background: #ede0c8;
+        }
+        .tile-8 {
+            border-radius: 3px;
+            font-size: 55px;
+            color: #f9f6f2;
+            background: #f2b179;
+        }
+        .tile-16 {
+            border-radius: 3px;
+            font-size: 55px;
+            color: #f9f6f2;
+            background: #f59563;
+        }
+        .tile-32 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 55px;
+            background: #f67c5f;
+        }
+        .tile-64 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 55px;
+            background: #f65e3b;
+        }
+        .tile-128 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 45px;
+            background: #edcf72;
+        }
+        .tile-256 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 45px;
+            background: #edcc61;
+        }
+        .tile-512 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 45px;
+            background: #edc850;
+        }
+        .tile-1024 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 35px;
+            background: #edc53f;
+        }
+        .tile-2048 {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 35px;
+            background: #edc22e;
+        }
+        .tile-super {
+            border-radius: 3px;
+            color: #f9f6f2;
+            font-size: 25px;
+            background: #3c3a32;
+            font-size: 45px;
+        }
+
+        .tile-inner {
+            border-radius: 3px;
+            line-height: 107px;
+            box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255, 0);
+            animation: appear 200ms ease 100ms;
+            user-select: none; /* supported by Chrome and Opera */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+        }
+        .grid-cell:last-child {
+            margin-right: 0;
+        }
+    </style>
+
+    </head>
+    <body>
+
+        <div id="2048_div">
+        </div>
+        <br/>
+        <input type="button" value="Auto Play" id="auto">
+        <script type="text/javascript" src="2048_game.js">
+        </script>
+        <script type="text/javascript" src="2048_ui.js">
+        </script>
+        <script type="text/javascript" src="2048_solver.js">
+        </script>
+        <script type="text/javascript">
+            var pos = game.random();
+            var div = document.getElementById('2048_div');
+            var interface = ui.init(div, pos);
+            var button = document.getElementById('auto');
+            button.addEventListener('click', evt => {
+                var solve = () => {
+                    m = solver.findBest(interface.position);
+                    if (m != null) {
+                        interface.makeMove(m);
+                        setTimeout(solve, 100);
+                    } else {
+                        console.log("Stopping autoplay, game ended!")
+                    }
+                }
+                setTimeout(solve, 100);
+            });
+        </script>
+    </body>
+</html>
