@@ -23,6 +23,14 @@ function Position(arr, score) {
     this.score = score;
 };
 
+Position.prototype.index = function(row, col) {
+    return row * 4 + col;
+};
+
+Position.prototype.direct = function(index) {
+    return this.arr[index]
+};
+
 Position.prototype.at = function(row, col) {
     return this.arr[row * 4 + col];
 };
