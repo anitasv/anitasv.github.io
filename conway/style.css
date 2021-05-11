@@ -1,0 +1,61 @@
+.board {
+    display: table;
+}
+
+.row {
+    display: table-row;
+}
+
+@keyframes todie {
+    from {
+        border-radius: 8px;
+        background-color: rgb(180, 127, 73)
+    }
+    to {
+        border-radius: 4px;
+        background-color: rgb(200, 224, 230)
+    }
+}
+
+@keyframes tolive {
+    from {
+        border-radius: 4px;
+        background-color: rgb(200, 224, 230)
+    }
+    to {
+        border-radius: 8px;
+        background-color: rgb(180, 127, 73)
+    }
+}
+
+.square {
+    display: table-cell;
+    height: 12px;
+    width: 12px;
+    padding: 1px;
+    border-radius: 3px;
+    box-shadow: 2px 2px 1px rgb(200, 200, 200);
+    border: 2px solid rgba(0, 0, 0, 0);
+}
+
+.animtolive {
+    animation-name: tolive;
+    animation-duration: .2s;
+}
+
+.animtodie {
+    animation-name: todie;
+    animation-duration: .2s;
+}
+
+.dead {
+    border-radius: 4px;
+    background-color: rgb(200, 224, 230)
+}
+
+.live {
+    border-radius: 8px;
+    background-color: rgb(180, 127, 73)
+}
+
+
