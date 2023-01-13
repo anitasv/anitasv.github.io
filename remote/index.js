@@ -21,7 +21,9 @@ function main() {
     startVolume: 0,
     volume: 0,
     reported: 0,
-    selection: 'xboxInside'
+    selection: 'xboxInside',
+    powerState: 'off',
+    muteState: 'off',
   };
 
 
@@ -40,6 +42,10 @@ function main() {
     sliderPosition.prev = sliderPosition.start;
     sliderPosition.diff = 0;
     sliderPosition.startVolume = sliderPosition.volume;
+    sliderPosition.powerState = 'on';
+    sliderPosition.muteState = 'off';
+    updatePowerColor();
+    updateMuteColor();
   });
 
   const displayDbLevel = () => {
@@ -70,7 +76,6 @@ function main() {
       } else {
         sliderPosition.reported--;
       }
-      console.log(sliderPosition.reported);
       const reportedAngle = initialAngle + (Math.PI /32) * sliderPosition.reported;
       const reportedPos =  [32 + Math.cos(reportedAngle) * 27.4, 32 + Math.sin(reportedAngle) * 27.4];
       const lagged = document.getElementById('lagged');
@@ -100,15 +105,13 @@ function main() {
     const slider = document.getElementById('slider');
     slider.cx.baseVal.value = newPos[0];
     slider.cy.baseVal.value = newPos[1];
-
-
   });
   slider.addEventListener('touchend', (evt) => {
     setVisible(sliderPosition.selection);
   });
 
   const setVisible = (selection) => {
-    const elements = ['echoInside', 'xboxInside', 'vinylInside', 'volume'];
+    const elements = ['echoInside', 'xboxInside', 'vinylInside', 'volume', 'poweroff'];
     const hiddenOnes = elements.filter((element) => element !== selection);
     hiddenOnes.forEach((element) => {
       document.getElementById(element).setAttributeNS(null, "visibility", 'hidden');
@@ -116,18 +119,66 @@ function main() {
     document.getElementById(selection).setAttributeNS(null, "visibility", 'visible');
   }
 
-  document.getElementById('echoOutside').addEventListener('click', () => {
+  $('echoOutside').addEventListener('click', () => {
     sliderPosition.selection = 'echoInside'
-    setVisible('echoInside');
+    sliderPosition.powerState = 'on';
+    updatePowerColor()
+    setVisible(sliderPosition.selection);
   })
-  document.getElementById('xboxOutside').addEventListener('click', () => {
+  $('xboxOutside').addEventListener('click', () => {
     sliderPosition.selection = 'xboxInside'
-    setVisible('xboxInside');
+    sliderPosition.powerState = 'on';
+    updatePowerColor()
+    setVisible(sliderPosition.selection);
   })
-  document.getElementById('vinylOutside').addEventListener('click', () => {
+  $('vinylOutside').addEventListener('click', () => {
     sliderPosition.selection = 'vinylInside'
-    setVisible('vinylInside');
+    sliderPosition.powerState = 'on';
+    updatePowerColor()
+    setVisible(sliderPosition.selection);
   })
+
+  const updatePowerColor = () => {
+    const p = $('power');
+    if (sliderPosition.powerState === 'on') {
+      p.classList.remove('poweroff');
+      p.classList.add('poweron');
+      setVisible('xboxInside')
+    } else {
+      p.classList.remove('poweron');
+      p.classList.add('poweroff');
+      setVisible('poweroff')
+    }
+  }
+
+  $('power').addEventListener('click', () => {
+    if (sliderPosition.powerState === 'off') {
+      sliderPosition.powerState = 'on';
+    } else {
+      sliderPosition.powerState = 'off';
+    }  
+    updatePowerColor();
+  });
+
+  const updateMuteColor = () => {
+    const m = $('mute');
+    if (sliderPosition.muteState === 'on') {
+      m.classList.remove('muteoff');
+      m.classList.add('muteon');
+    } else {
+      m.classList.remove('muteon');
+      m.classList.add('muteoff');
+    }  
+  };
+
+  $('mute').addEventListener('click', () => {
+    if (sliderPosition.muteState === 'off') {
+      sliderPosition.muteState = 'on';
+    } else {
+      sliderPosition.muteState = 'off';
+    }  
+    updateMuteColor();
+  });
 }
 
 main();
