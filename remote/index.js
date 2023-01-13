@@ -16,8 +16,14 @@ function main() {
   const sliderPosition = {
     start: null,
     index: null,
+    prev: null,
+    diff: 0,
+    startVolume: 0,
+    volume: 0,
+    reported: 0,
     selection: 'xboxInside'
   };
+
 
   const computeAngle = (reference) => {
     const origin = sliderCenter();
@@ -27,10 +33,13 @@ function main() {
     return roundedAngle;
   }
 
+  const initialAngle = computeAngle(sliderPos());
+
   slider.addEventListener('touchstart', (evt) => {
     sliderPosition.start = computeAngle(sliderPos());
     sliderPosition.prev = sliderPosition.start;
     sliderPosition.diff = 0;
+    sliderPosition.startVolume = sliderPosition.volume;
   });
 
   const displayDbLevel = () => {
@@ -54,6 +63,23 @@ function main() {
     setVisible('volume');
   }
 
+  setInterval(() => {
+    if (sliderPosition.volume != sliderPosition.reported) {
+      if (sliderPosition.volume > sliderPosition.reported) {
+        sliderPosition.reported++;
+      } else {
+        sliderPosition.reported--;
+      }
+      console.log(sliderPosition.reported);
+      const reportedAngle = initialAngle + (Math.PI /32) * sliderPosition.reported;
+      const reportedPos =  [32 + Math.cos(reportedAngle) * 27.4, 32 + Math.sin(reportedAngle) * 27.4];
+      const lagged = document.getElementById('lagged');
+      lagged.cx.baseVal.value = reportedPos[0];
+      lagged.cy.baseVal.value = reportedPos[1];
+  
+    }
+  }, 100);
+
   slider.addEventListener('touchmove', (evt) => {
     const reference = [evt.touches[0].clientX, evt.touches[0].clientY];
     const angle = computeAngle(reference);
@@ -64,19 +90,18 @@ function main() {
       delta -= 2 * Math.PI;
     }
     const unitDelta = Math.round(delta/(Math.PI/32));
-    console.log("units: ", unitDelta);
     sliderPosition.diff += unitDelta;
     sliderPosition.prev = angle;
+    sliderPosition.volume = sliderPosition.startVolume + sliderPosition.diff;
 
     displayDbLevel();
-
-    console.log("db Change: ", sliderPosition.diff);
-
 
     const newPos = [32 + Math.cos(angle) * 27.4, 32 + Math.sin(angle) * 27.4];
     const slider = document.getElementById('slider');
     slider.cx.baseVal.value = newPos[0];
     slider.cy.baseVal.value = newPos[1];
+
+
   });
   slider.addEventListener('touchend', (evt) => {
     setVisible(sliderPosition.selection);
