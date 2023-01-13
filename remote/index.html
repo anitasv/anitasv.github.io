@@ -12,14 +12,14 @@
       }
       .grid-container {
         display: grid;
-        width: min(100%, 75vh);
+        width: min(100%, 70vh);
         overflow: hidden;
         grid-template-areas: "panel panel panel" "panel panel panel" "panel panel panel" "control-1 control-2 control-3"
       }
       @media(min-aspect-ratio: 1/1) {
         .grid-container {
           display: grid;
-          width: min(100%, 133vh);
+          width: min(100%, 130vh);
           height: 100%;
           overflow: hidden;
           grid-template-areas: "panel panel panel control-1" "panel panel panel control-2" "panel panel panel control-3"
@@ -27,7 +27,7 @@
       }
     </style>
   </head>
-  <body style="background-color: #011020; margin: 0;">
+  <body style="background-color: #011020; margin: 0; overflow: hidden;">
     <div class="grid-container">
       <div style="grid-area: panel">
         <svg id="panel" viewBox="0 0 64 64"  fill="#ffffff" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
