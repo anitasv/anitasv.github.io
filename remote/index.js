@@ -1,19 +1,7 @@
 
 function main() {
   
-  
-  const getCenter = (elem) => {
-    const rect = elem.getBoundingClientRect();
-    return  [rect.x + rect.width / 2, rect.y + rect.height / 2];
-  }
-  
-  const $ = (id) => document.getElementById(id);
-
-  const sliderCenter = () => getCenter($("center"));
-
-  const sliderPos = () => getCenter($("slider"));
-
-  const sliderPosition = {
+  const state = {
     start: null,
     index: null,
     prev: null,
@@ -26,6 +14,16 @@ function main() {
     muteState: 'off',
   };
 
+  const getCenter = (elem) => {
+    const rect = elem.getBoundingClientRect();
+    return  [rect.x + rect.width / 2, rect.y + rect.height / 2];
+  }
+  
+  const $ = (id) => document.getElementById(id);
+  const sliderCenter = () => getCenter($("center"));
+
+  const sliderPos = () => getCenter($("slider"));
+      const lagged = document.getElementById('lagged');
 
   const computeAngle = (reference) => {
     const origin = sliderCenter();
@@ -38,22 +36,23 @@ function main() {
   const initialAngle = computeAngle(sliderPos());
 
   slider.addEventListener('touchstart', (evt) => {
-    sliderPosition.start = computeAngle(sliderPos());
-    sliderPosition.prev = sliderPosition.start;
-    sliderPosition.diff = 0;
-    sliderPosition.startVolume = sliderPosition.volume;
-    sliderPosition.powerState = 'on';
-    sliderPosition.muteState = 'off';
+    state.start = computeAngle(sliderPos());
+    state.prev = state.start;
+    state.diff = 0;
+    state.startVolume = state.volume;
+    state.powerState = 'on';
+    state.muteState = 'off';
     updatePowerColor();
     updateMuteColor();
+    evt.preventDefault();
   });
 
   const displayDbLevel = () => {
     let dbLevel = '';
-    if (sliderPosition.diff > 0) {
-      dbLevel = '+' + sliderPosition.diff;
-    } else if (sliderPosition.diff < 0) {
-      dbLevel = sliderPosition.diff;
+    if (state.diff > 0) {
+      dbLevel = '+' + state.diff;
+    } else if (state.diff < 0) {
+      dbLevel = state.diff;
     } else {
       dbLevel = '0';
     }
@@ -69,45 +68,50 @@ function main() {
     setVisible('volume');
   }
 
+  const moveCircle = (elem, angle) => {
+    const reportedPos =  [32 + Math.cos(angle) * 27.4, 32 + Math.sin(angle) * 27.4];
+    elem.cx.baseVal.value = reportedPos[0];
+    elem.cy.baseVal.value = reportedPos[1];
+  }
+
+  const recoverAngle = (volumeLevel) => {
+    return initialAngle + (Math.PI /32) * volumeLevel;
+  }
+
   setInterval(() => {
-    if (sliderPosition.volume != sliderPosition.reported) {
-      if (sliderPosition.volume > sliderPosition.reported) {
-        sliderPosition.reported++;
+    if (state.volume != state.reported) {
+      if (state.volume > state.reported) {
+        state.reported++;
       } else {
-        sliderPosition.reported--;
+        state.reported--;
       }
-      const reportedAngle = initialAngle + (Math.PI /32) * sliderPosition.reported;
-      const reportedPos =  [32 + Math.cos(reportedAngle) * 27.4, 32 + Math.sin(reportedAngle) * 27.4];
-      const lagged = document.getElementById('lagged');
-      lagged.cx.baseVal.value = reportedPos[0];
-      lagged.cy.baseVal.value = reportedPos[1];
-  
+      moveCircle($('lagged'), recoverAngle(state.reported))
     }
   }, 100);
 
   slider.addEventListener('touchmove', (evt) => {
     const reference = [evt.touches[0].clientX, evt.touches[0].clientY];
     const angle = computeAngle(reference);
-    let delta = angle - sliderPosition.prev;
+    let delta = angle - state.prev;
     if (delta < -Math.PI) {
       delta += 2 * Math.PI;
     } else if (delta > Math.PI) {
       delta -= 2 * Math.PI;
     }
     const unitDelta = Math.round(delta/(Math.PI/32));
-    sliderPosition.diff += unitDelta;
-    sliderPosition.prev = angle;
-    sliderPosition.volume = sliderPosition.startVolume + sliderPosition.diff;
+    state.diff += unitDelta;
+    state.prev = angle;
+    state.volume = state.startVolume + state.diff;
 
     displayDbLevel();
 
-    const newPos = [32 + Math.cos(angle) * 27.4, 32 + Math.sin(angle) * 27.4];
-    const slider = document.getElementById('slider');
-    slider.cx.baseVal.value = newPos[0];
-    slider.cy.baseVal.value = newPos[1];
+    moveCircle($('slider'), angle);
+
+    evt.preventDefault();
   });
   slider.addEventListener('touchend', (evt) => {
-    setVisible(sliderPosition.selection);
+    setVisible(state.selection);
+    evt.preventDefault();
   });
 
   const setVisible = (selection) => {
@@ -120,27 +124,27 @@ function main() {
   }
 
   $('echoOutside').addEventListener('click', () => {
-    sliderPosition.selection = 'echoInside'
-    sliderPosition.powerState = 'on';
+    state.selection = 'echoInside'
+    state.powerState = 'on';
     updatePowerColor()
-    setVisible(sliderPosition.selection);
+    setVisible(state.selection);
   })
   $('xboxOutside').addEventListener('click', () => {
-    sliderPosition.selection = 'xboxInside'
-    sliderPosition.powerState = 'on';
+    state.selection = 'xboxInside'
+    state.powerState = 'on';
     updatePowerColor()
-    setVisible(sliderPosition.selection);
+    setVisible(state.selection);
   })
   $('vinylOutside').addEventListener('click', () => {
-    sliderPosition.selection = 'vinylInside'
-    sliderPosition.powerState = 'on';
+    state.selection = 'vinylInside'
+    state.powerState = 'on';
     updatePowerColor()
-    setVisible(sliderPosition.selection);
+    setVisible(state.selection);
   })
 
   const updatePowerColor = () => {
     const p = $('power');
-    if (sliderPosition.powerState === 'on') {
+    if (state.powerState === 'on') {
       p.classList.remove('poweroff');
       p.classList.add('poweron');
       setVisible('xboxInside')
@@ -151,20 +155,29 @@ function main() {
     }
   }
 
+  const stopVolumeUpdates = () => {
+    if (state.reported != state.volume) {
+      state.volume = state.reported;
+      moveCircle($('slider'), recoverAngle(state.volume));
+    }
+  }
+
   $('power').addEventListener('click', () => {
-    if (sliderPosition.powerState === 'off') {
-      sliderPosition.powerState = 'on';
+    if (state.powerState === 'off') {
+      state.powerState = 'on';
     } else {
-      sliderPosition.powerState = 'off';
+      state.powerState = 'off';
+      stopVolumeUpdates();
     }  
     updatePowerColor();
   });
 
   const updateMuteColor = () => {
     const m = $('mute');
-    if (sliderPosition.muteState === 'on') {
+    if (state.muteState === 'on') {
       m.classList.remove('muteoff');
       m.classList.add('muteon');
+      stopVolumeUpdates();
     } else {
       m.classList.remove('muteon');
       m.classList.add('muteoff');
@@ -172,10 +185,10 @@ function main() {
   };
 
   $('mute').addEventListener('click', () => {
-    if (sliderPosition.muteState === 'off') {
-      sliderPosition.muteState = 'on';
+    if (state.muteState === 'off') {
+      state.muteState = 'on';
     } else {
-      sliderPosition.muteState = 'off';
+      state.muteState = 'off';
     }  
     updateMuteColor();
   });
