@@ -23,13 +23,15 @@ function main() {
   const sliderCenter = () => getCenter($("center"));
 
   const sliderPos = () => getCenter($("slider"));
-      const lagged = document.getElementById('lagged');
+
+  const dbPerCircle = 32;
+  const anglePerDB = Math.PI / (dbPerCircle/2);
 
   const computeAngle = (reference) => {
     const origin = sliderCenter();
     const vector = [reference[0] - origin[0], reference[1] - origin[1]];
     const angle =  Math.atan2(vector[1], vector[0]);
-    const roundedAngle = Math.round(angle/(Math.PI/32)) * (Math.PI/32)
+    const roundedAngle = Math.round(angle/anglePerDB) * anglePerDB
     return roundedAngle;
   }
 
@@ -46,6 +48,7 @@ function main() {
     updateMuteColor();
     evt.preventDefault();
   });
+
 
   const displayDbLevel = () => {
     let dbLevel = '';
@@ -75,7 +78,7 @@ function main() {
   }
 
   const recoverAngle = (volumeLevel) => {
-    return initialAngle + (Math.PI /32) * volumeLevel;
+    return initialAngle + anglePerDB * volumeLevel;
   }
 
   setInterval(() => {
@@ -98,7 +101,7 @@ function main() {
     } else if (delta > Math.PI) {
       delta -= 2 * Math.PI;
     }
-    const unitDelta = Math.round(delta/(Math.PI/32));
+    const unitDelta = Math.round(delta/anglePerDB);
     state.diff += unitDelta;
     state.prev = angle;
     state.volume = state.startVolume + state.diff;
