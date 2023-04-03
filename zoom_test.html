@@ -12,10 +12,13 @@
         <p> Single finger is for page scroll.</p>
         <p>Get it here</p>
         <a href="https://github.com/anitasv/zoom">https://github.com/anitasv/zoom</a>
-        <script type="text/javascript" src="zoom_19.js"> </script>
+        <script type="text/javascript" src="zoom_3Apr2023.min.js.js"> </script>
         <script type="text/javascript"> 
             var img = document.getElementById('mysenn');
-            var zm = new Zoom(img);
+            var zm = new Zoom(img, {
+                minZoom: .5, 
+                maxZoom: 2.0
+            });
         </script>
     </body>
 </html>
